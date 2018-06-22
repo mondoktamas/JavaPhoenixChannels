@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,9 +18,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -201,9 +201,15 @@ public class Socket {
         log.trace("disconnect");
         if (webSocket != null) {
             webSocket.close(1001 /*CLOSE_GOING_AWAY*/, "Disconnected by client");
+            webSocket = null;
         }
         cancelHeartbeatTimer();
         cancelReconnectTimer();
+
+        socketOpenCallbacks.clear();
+        errorCallbacks.clear();
+        messageCallbacks.clear();
+        socketCloseCallbacks.clear();
     }
 
     /**
